@@ -32,9 +32,15 @@ contract Raffle {
     // Errors
     error Raffle__SendMoreEthToEnterRaffle();
 
+    // State variables
     uint256 private immutable i_entranceFee;
 
+    // Storage variable because players will change as they are added
+    address payable[] private s_players;
+
      
+     // Events (verb based naming convention)
+     event RaffleEnter(address indexed player);
 
     constructor(uint256 entranceFee) {
         i_entranceFee = entranceFee;
@@ -45,6 +51,8 @@ contract Raffle {
         if (msg.value < i_entranceFee) {
             revert Raffle__SendMoreEthToEnterRaffle();
         }
+        s_players.push(payable(msg.sender));
+        emit RaffleEnter(msg.sender);
      }
 
     function pickWinner() public {
