@@ -62,6 +62,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     // Events (verb based naming convention)
     event RaffleEnter(address indexed player);
+    event WinnerPicked(address indexed winner);
 
     constructor(uint256 entranceFee, uint256 interval, address vrfCoordinator, bytes32 gasLane, uint256 subId, uint32 callbackGasLimit) VRFConsumerBaseV2Plus(vrfCoordinator) {
         i_entranceFee = entranceFee;
@@ -103,7 +104,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
                 numWords: NUM_WORDS,
                 extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: true})) // new parameter
             });
-        
+
         uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
 
     }
@@ -111,13 +112,18 @@ contract Raffle is VRFConsumerBaseV2Plus {
     function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
+
+
         s_recentWinner = recentWinner;
         s_raffleState = RaffleState.OPEN;
+        s_players = new address payable[](0);   
+        s_lastTimeStamp = block.timestamp;
+        
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
         if (!success) {
             revert Raffle__TransferFailed();
         }
-        
+        emit WinnerPicked(recentWinner);
     }
     /**
      * View / Pure functions
