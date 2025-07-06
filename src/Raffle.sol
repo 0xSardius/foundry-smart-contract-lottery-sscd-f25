@@ -109,7 +109,14 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     }
 
+    // CEI: Checks, Effects, Interactions
+
     function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
+        // Checks
+        // None in this example
+
+
+        // Effects (Internal Contract Changes, state changes, etc.)
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
 
@@ -118,12 +125,15 @@ contract Raffle is VRFConsumerBaseV2Plus {
         s_raffleState = RaffleState.OPEN;
         s_players = new address payable[](0);   
         s_lastTimeStamp = block.timestamp;
-        
+        // Events can be tricky, so we should do before external interactions for securityated
+        emit WinnerPicked(recentWinner);
+
+        // Interactions - External contract interactions, external calls, etc.
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
         if (!success) {
             revert Raffle__TransferFailed();
         }
-        emit WinnerPicked(recentWinner);
+        
     }
     /**
      * View / Pure functions
