@@ -35,6 +35,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle__RaffleNotReady();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
+    error Raffle__UpkeepNotNeeded();
+
+
     /* Type declarations */
     enum RaffleState {
         OPEN,
@@ -85,6 +88,41 @@ contract Raffle is VRFConsumerBaseV2Plus {
         }
         s_players.push(payable(msg.sender));
         emit RaffleEnter(msg.sender);
+    }
+    
+    // When should the winner be picked?
+    /**
+    @dev This is the function that the Chainlink Nodes will use to see if the lottery is ready to have a winner picked
+    The following should be true in order to call this function:
+    * 1. The lottery is open
+    * 2. There is at least 1 player in the lottery
+    * 3. The contract has ETH
+    * 4. The time interval has passed
+     */ 
+    function checkUpkeep(bytes calldata /* checkData */) public view returns (bool upkeepNeeded, bytes memory /* performData */) {
+        // Check
+        bool timeHasPassed = (block.timestamp - s_lastTimeStamp) > i_interval;
+        bool isOpen = s_raffleState == RaffleState.OPEN;
+        bool hasPlayers = s_players.length > 0;
+        bool hasBalance = address(this).balance > 0;
+        upkeepNeeded = (timeHasPassed && isOpen && hasPlayers && hasBalance);
+        // Effects
+        
+
+        // Interactions
+        return (upkeepNeeded, "");
+    }
+
+    function performUpkeep(bytes calldata /* performData */) external {
+        // check
+        // calldata can only be generated from a user's transaction 
+        (bool upkeepNeeded, ) = checkUpkeep("");
+        if (!upkeepNeeded) {
+            revert Raffle__UpkeepNotNeeded();
+        }
+
+        // Effects
+        s_raffleState = RaffleState.CALCULATING;
     }
 
     // 1. Get a random number
