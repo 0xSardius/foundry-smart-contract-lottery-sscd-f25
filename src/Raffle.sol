@@ -35,7 +35,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle__RaffleNotReady();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
-    error Raffle__UpkeepNotNeeded();
+    error Raffle__UpkeepNotNeeded(uint256 balance, uint256 playersLength, uint256 s_raffleState);
 
 
     /* Type declarations */
@@ -99,7 +99,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     * 3. The contract has ETH
     * 4. The time interval has passed
      */ 
-    function checkUpkeep(bytes calldata /* checkData */) public view returns (bool upkeepNeeded, bytes memory /* performData */) {
+    function checkUpkeep(bytes memory /* checkData */) public view returns (bool upkeepNeeded, bytes memory /* performData */) {
         // Check
         bool timeHasPassed = (block.timestamp - s_lastTimeStamp) > i_interval;
         bool isOpen = s_raffleState == RaffleState.OPEN;
@@ -118,7 +118,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         // calldata can only be generated from a user's transaction 
         (bool upkeepNeeded, ) = checkUpkeep("");
         if (!upkeepNeeded) {
-            revert Raffle__UpkeepNotNeeded();
+            revert Raffle__UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
         }
 
         // Effects
@@ -143,13 +143,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
                 extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: true})) // new parameter
             });
 
-        uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+        s_vrfCoordinator.requestRandomWords(request);
 
     }
 
     // CEI: Checks, Effects, Interactions
 
-    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
+    function fulfillRandomWords(uint256 /* requestId */, uint256[] calldata randomWords) internal override {
         // Checks
         // None in this example
 
