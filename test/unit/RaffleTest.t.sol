@@ -18,18 +18,18 @@ contract RaffleTest is Test {
     uint256 public subscriptionId;
 
     address public PLAYER = makeAddr("PLAYER");
-    address public constant STARTING_PLAYER_BALANCE = 10 ether;
+    uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
 
     function setUp() public {
         DeployRaffle deployer = new DeployRaffle();
         (raffle, helperConfig) = deployer.run();
-        HelperConfig.NetworkConfig memory config = helperconfig.getConfig();
-        entranceFee = config.entranceFee;
-        interval = config.interval;
-        vrfCoordinator = config.vrfCoordinator;
-        gasLane = config.gasLane;
-        callbackGasLimit = config.callbackGasLimit;
-        subscriptionId = config.subscriptionId;
+        HelperConfig.NetworkConfig memory networkConfig = helperConfig.getConfig();
+        entranceFee = networkConfig.entranceFee;
+        interval = networkConfig.interval;
+        vrfCoordinator = networkConfig.vrfCoordinator;
+        gasLane = networkConfig.gasLane;
+        callbackGasLimit = networkConfig.callbackGasLimit;
+        subscriptionId = networkConfig.subscriptionId;
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 

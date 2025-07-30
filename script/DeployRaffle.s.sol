@@ -10,25 +10,27 @@ contract DeployRaffle is Script {
 
     function setUp() public {}
 
-    function run() public {
-        
+    function run() public returns(Raffle, HelperConfig) {
+        return deployContract();
     }
 
     function deployContract() public returns(Raffle, HelperConfig) {
-        HelperConfig config = new HelperConfig();
+        HelperConfig helperConfig = new HelperConfig();
         // local -> deploy mocks, get local config
         // sepolia -> get sepolia config
-        HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
+        HelperConfig.NetworkConfig memory networkConfig = helperConfig.getConfig();
+        
         vm.startBroadcast();
-        Raffle raffle = new Raffle(
-            config.entranceFee,
-            config.interval,
-            config.vrfCoordinator,
-            config.gasLane,
-            config.callbackGasLimit,
-            config.subscriptionId 
+        Raffle deployedRaffle = new Raffle(
+            networkConfig.entranceFee,
+            networkConfig.interval,
+            networkConfig.vrfCoordinator,
+            networkConfig.gasLane,
+            networkConfig.subscriptionId,
+            networkConfig.callbackGasLimit
         );
-        return (raffle, config);
         vm.stopBroadcast();
+        
+        return (deployedRaffle, helperConfig);
     }
 }
