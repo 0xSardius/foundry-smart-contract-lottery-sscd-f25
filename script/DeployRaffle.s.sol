@@ -19,6 +19,10 @@ contract DeployRaffle is Script {
         // local -> deploy mocks, get local config
         // sepolia -> get sepolia config
         HelperConfig.NetworkConfig memory networkConfig = helperConfig.getConfig();
+
+        if (networkConfig.subscriptionId == 0) {
+            
+        }
         
         vm.startBroadcast();
         Raffle deployedRaffle = new Raffle(
