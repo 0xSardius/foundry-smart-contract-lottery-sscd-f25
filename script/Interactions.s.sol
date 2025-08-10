@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import {Script, console} from "forge-std/Script.sol";
+import {Script, console} from "lib/forge-std/src/Script.sol";
 import {Raffle} from "../src/Raffle.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import {VRFCoordinatorV2_5Mock} from "lib/chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
@@ -31,4 +31,18 @@ contract CreateSubscription is Script {
     function run() external returns (uint64) {
         return createSubscriptionUsingConfig();
     }
+}
+
+contract FundSubscription is Script {
+    uint256 public constant FUND_AMOUNT = 3 ether; // 3 LINK
+
+    function fundSubscriptionUsingConfig() public {
+        HelperConfig helperConfig = new HelperConfig();
+        address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
+        address subscriptionId = helperConfig.getConfig().subscriptionId;
+    }
+    function run() public() {
+
+    }
+
 }

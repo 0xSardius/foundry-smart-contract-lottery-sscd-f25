@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {Script, console} from "forge-std/Script.sol";
+import {Script, console} from "lib/forge-std/src/Script.sol";
 import {Raffle} from "../src/Raffle.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import {CreateSubscription} from "./Interactions.s.sol";
@@ -24,7 +24,7 @@ contract DeployRaffle is Script {
         if (networkConfig.subscriptionId == 0) {
             CreateSubscription createSubscription = new CreateSubscription();
             (networkConfig.subscriptionId, networkConfig.vrfCoordinator) = createSubscription.createSubscription(networkConfig.vrfCoordinator);
-            
+
         }
         
         vm.startBroadcast();
