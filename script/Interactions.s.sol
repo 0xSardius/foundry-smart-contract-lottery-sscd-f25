@@ -6,8 +6,10 @@ import {Script, console} from "lib/forge-std/src/Script.sol";
 import {Raffle} from "../src/Raffle.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import {VRFCoordinatorV2_5Mock} from "lib/chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+import {CodeConstants} from "./HelperConfig.s.sol";
+import {LinkToken} from "../test/mocks/LinkToken.sol";
 
-contract CreateSubscription is Script {
+contract CreateSubscription is Script, CodeConstants {
 
     function createSubscriptionUsingConfig() public returns (uint64, address) {
         HelperConfig helperConfig = new HelperConfig();
@@ -33,16 +35,38 @@ contract CreateSubscription is Script {
     }
 }
 
-contract FundSubscription is Script {
+contract FundSubscription is Script, CodeConstants {
     uint256 public constant FUND_AMOUNT = 3 ether; // 3 LINK
 
     function fundSubscriptionUsingConfig() public {
         HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
-        address subscriptionId = helperConfig.getConfig().subscriptionId;
+        uint256 subscriptionId = helperConfig.getConfig().subscriptionId;
+        address linkToken = helperConfig.getConfig().link;
+        fundSubscription(vrfCoordinator, subscriptionId, linkToken);
     }
-    function run() public() {
 
+    function fundSubscription(address vrfCoordinator, uint256 subscriptionId, address linkToken) public {
+        console.log("Funding subscription: ", subscriptionId);
+        console.log("Using vrfCoordinator: ", vrfCoordinator);
+        console.log("Using linkToken: ", linkToken);
+        console.log("On chainId: ", block.chainid);
+
+        if (block.chainid == LOCAL_CHAIN_ID) {
+            vm.startBroadcast();
+            VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, FUND_AMOUNT);
+            vm.stopBroadcast();
+        } else {
+            vm.startBroadcast();
+            // special link token function
+            LinkToken(linkToken).transferAndCall(vrfCoordinator, FUND_AMOUNT, abi.encode(subscriptionId));
+            vm.stopBroadcast();
+        }
+
+    }
+
+    function run() public {
+        fundSubscriptionUsingConfig();
     }
 
 }
