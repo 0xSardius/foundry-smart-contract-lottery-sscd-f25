@@ -62,7 +62,7 @@ contract HelperConfig is Script, CodeConstants {
             callbackGasLimit: 500000,
             // in a prod build you would want to paste this from your actual chainlink subscription
             subscriptionId: 0,
-            link: address(linkToken)
+            link: address(LinkToken)
         });
     }
 
