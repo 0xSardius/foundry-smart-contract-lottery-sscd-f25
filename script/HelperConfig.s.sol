@@ -62,7 +62,7 @@ contract HelperConfig is Script, CodeConstants {
             callbackGasLimit: 500000,
             // in a prod build you would want to paste this from your actual chainlink subscription
             subscriptionId: 0,
-            link: address(LinkToken)
+            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789
         });
     }
 
@@ -86,7 +86,8 @@ contract HelperConfig is Script, CodeConstants {
             vrfCoordinator: address(vrfCoordinatorMock),
             gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
             callbackGasLimit: 500000,
-            subscriptionId: 0
+            subscriptionId: 0,
+            link: address(linkToken)
         });
         
         return localNetworkConfig;

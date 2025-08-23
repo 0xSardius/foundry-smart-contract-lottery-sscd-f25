@@ -23,7 +23,9 @@ contract DeployRaffle is Script {
 
         if (networkConfig.subscriptionId == 0) {
             CreateSubscription createSubscription = new CreateSubscription();
-            (networkConfig.subscriptionId, networkConfig.vrfCoordinator) = createSubscription.createSubscription(networkConfig.vrfCoordinator);
+            (uint256 subId, address vrfCoord) = createSubscription.createSubscription(networkConfig.vrfCoordinator);
+            networkConfig.subscriptionId = subId;
+            networkConfig.vrfCoordinator = vrfCoord;
 
             // Fund that shit!
             FundSubscription fundSubscription = new FundSubscription();
@@ -43,7 +45,7 @@ contract DeployRaffle is Script {
 
         AddConsumer addConsumer = new AddConsumer();
         // Don't need to broadcast, 
-        addConsumer.addConsumer(address(raffle), networkConfig.vrfCoordinator, networkConfig.subscriptionId);
+        addConsumer.addConsumer(address(deployedRaffle), networkConfig.vrfCoordinator, networkConfig.subscriptionId);
         
         return (deployedRaffle, helperConfig);
     }

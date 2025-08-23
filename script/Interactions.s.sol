@@ -12,7 +12,7 @@ import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 
 contract CreateSubscription is Script, CodeConstants {
 
-    function createSubscriptionUsingConfig() public returns (uint64, address) {
+    function createSubscriptionUsingConfig() public returns (uint256, address) {
         HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         (uint256 subId,) = createSubscription(vrfCoordinator);
@@ -31,7 +31,7 @@ contract CreateSubscription is Script, CodeConstants {
         return (subId, vrfCoordinator);
     }
 
-    function run() external returns (uint64) {
+    function run() external returns (uint256, address) {
         return createSubscriptionUsingConfig();
     }
 }
@@ -55,7 +55,7 @@ contract FundSubscription is Script, CodeConstants {
 
         if (block.chainid == LOCAL_CHAIN_ID) {
             vm.startBroadcast();
-            VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, FUND_AMOUNT);
+            VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, FUND_AMOUNT * 100);
             vm.stopBroadcast();
         } else {
             vm.startBroadcast();
@@ -81,9 +81,9 @@ contract AddConsumer is Script, CodeConstants {
 
     }
 
-    function addConsumer(address contractToAddToVrf, address vrfcoordinator, uint256 subId) public {
+    function addConsumer(address contractToAddToVrf, address vrfCoordinator, uint256 subId) public {
         console.log("Adding consumer contract: ", contractToAddToVrf);
-        console.log("To vrf coordinator: ", vrfcoordinator);
+        console.log("To vrf coordinator: ", vrfCoordinator);
         console.log("On chainId: ", block.chainid);
         vm.startBroadcast();
         VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subId, contractToAddToVrf);
